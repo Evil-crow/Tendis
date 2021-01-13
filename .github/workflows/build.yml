@@ -51,10 +51,10 @@ jobs:
     needs: [cpplint-check]
     name: Build-Test
     runs-on: ubuntu-18.04
+    env:
+        TEST_DIR: build/bin
 
     steps:
-      env:
-        TEST_DIR: build/bin
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
