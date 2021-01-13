@@ -53,6 +53,8 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
+      env:
+        TEST_DIR: build/bin
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
@@ -72,25 +74,21 @@ jobs:
           cmake --build . -j2
       - name: Restore Test
         run: |
-          cd build/bin
-          ./restore_test --gtest_throw_on_failure
+          ./$TEST_DIR/restore_test --gtest_throw_on_failure
         shell: bash
       - name: Repl Test
         run: |
-          cd build/bin
-          ./repl_test --gtest_throw_on_failure
+          ./$TEST_DIR/repl_test --gtest_throw_on_failure
         shell: bash
       - name: Cluster Test
         run: |
-          cd build/bin
-          ./cluster_test --gtest_throw_on_failure
+          ./$TEST_DIR/cluster_test --gtest_throw_on_failure
         shell: bash
       - name: Unit Test
         run: |
           bash unittest.sh
           errcnt1=`grep -E "Expected|FAILED" unittest.log |wc -l`
           if [ $errcnt1 -ne 0 ]; then
-              echo "really xxx judge"
               grep -E "Expected|FAILED" unittest.log 
               exit $errcnt1
           fi
