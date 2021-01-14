@@ -78,11 +78,9 @@ jobs:
           ./unittest.sh
           errcnt1=`grep -E "Expected|FAILED" unittest.log |wc -l`
           if [ $errcnt1 -ne 0 ]; then
-              grep -E "Expected|FAILED" unittest.log 
+              grep -E "Expected|FAILED" unittest.log
+              exit $errcnt1
           fi
-          echo `grep -E "Expected|FAILED" unittest.log`
-          ls
-          echo "Game Over"
           exit 0
       - name: Check Unit Test Result
         run: grep -E "Expected|FAILED" unittest.log
@@ -93,10 +91,8 @@ jobs:
           errcnt2=`grep -E "\[err|\[exception|49merr|49mexception" redistest.log|wc -l`
           if [ $errcnt2 -ne 0 ]; then
               grep -E "\[err|\[exception|49merr|49mexception" redistest.log
+              exit $errcnt2
           fi
-          echo `grep -E "\[err|\[exception|49merr|49mexception" redistest.log`
-          ls
-          echo "Game Over"
           exit 0
       - name: Check Redis Test Result
         run: grep -E "\[err|\[exception|49merr|49mexception" redistest.log
@@ -122,3 +118,4 @@ jobs:
               grep "go passed" src/tendisplus/integrate_test/gotest.log
               exit $errcnt2
           fi
+          exit 0
