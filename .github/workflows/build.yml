@@ -81,7 +81,7 @@ jobs:
           if [ $errcnt1 -ne 0 ]; then
               grep -E "Expected|FAILED" unittest.log
               exit $errcnt1
-          fi
+          fi 
           exit 0
       - name: Redis Test
         run: |
