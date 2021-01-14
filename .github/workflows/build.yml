@@ -76,6 +76,8 @@ jobs:
         run: |
           chmod +x unittest.sh
           ./unittest.sh
+          xxxunit=$?
+          echo "xxxunit=$xxxunit"
           errcnt1=`grep -E "Expected|FAILED" unittest.log |wc -l`
           echo "errent1=$errcnt1"
           if [ $errcnt1 -ne 0 ]; then
@@ -87,6 +89,8 @@ jobs:
         run: |
           chmod +x redistest.sh
           ./redistest.sh | tee temp_redistest.log
+          xxxredis=$?
+          echo "xxxredis=$xxxredis"
           errcnt2=`grep -E "\[err|\[exception|49merr|49mexception" redistest.log|wc -l`
           echo "errent2=$errcnt2"
           if [ $errcnt2 -ne 0 ]; then
@@ -97,10 +101,6 @@ jobs:
       - name: Restore Test
         run: |
           ./$TEST_DIR/restore_test --gtest_throw_on_failure
-      #- name: Repl Test
-      #  run: |
-      #    ./$TEST_DIR/repl_test --gtest_throw_on_failure
-      #  shell: bash
       - name: Cluster Test
         run: |
           ./$TEST_DIR/cluster_test --gtest_throw_on_failure
@@ -109,6 +109,8 @@ jobs:
           cd src/tendisplus/integrate_test
           chmod +x gotest.sh
           ./gotest.sh  | tee go-test2.log 
+          xxxgo=$?
+          echo "xxxgo=$xxxgo"
           cd -
           errcnt3=`grep "go passed" src/tendisplus/integrate_test/gotest.log|wc -l`
           echo "errcnt3=$errcnt3"
@@ -118,4 +120,8 @@ jobs:
               exit $errcnt3
           fi
           exit 0
+      - name: Repl Test
+        run: |
+          ./$TEST_DIR/repl_test --gtest_throw_on_failure
+        shell: bash
           
