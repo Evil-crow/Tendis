@@ -14,7 +14,7 @@ function runOne() {
     errcnt=`grep -E "Expected|FAILED" $logfile|wc -l`
     if [ $errcnt -ne 0 ]; then
         grep -E "Expected|FAILED" $logfile
-        #exit $errcnt
+        exit $errcnt
     fi
     #passcnt=`grep -E "\[  PASSED  \]" $tmplog|wc -l`
     #if [ $passcnt -lt 1 ]; then
