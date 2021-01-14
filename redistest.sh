@@ -13,7 +13,7 @@ function runOne() {
     errcnt=`grep -E "\[err|\[exception|49merr|49mexception" $logfile|wc -l`
     if [ $errcnt -ne 0 ]; then
         grep -E "\[err|\[exception|49merr|49mexception" $logfile
-        #exit $errcnt
+        exit $errcnt
     fi
 }
 
