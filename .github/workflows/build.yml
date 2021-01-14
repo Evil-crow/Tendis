@@ -74,7 +74,8 @@ jobs:
           cmake --build . -j2
       - name: Unit Test
         run: |
-          bash unittest.sh
+          chmod +x unittest.sh
+          ./unittest.sh
           errcnt1=`grep -E "Expected|FAILED" unittest.log |wc -l`
           if [ $errcnt1 -ne 0 ]; then
               grep -E "Expected|FAILED" unittest.log 
@@ -84,7 +85,8 @@ jobs:
         run: grep -E "Expected|FAILED" unittest.log
       - name: Redis Test
         run: |
-          bash redistest.sh | tee temp_redistest.log
+          chmod +x redistest.sh
+          ./redistest.sh | tee temp_redistest.log
           errcnt2=`grep -E "\[err|\[exception|49merr|49mexception" redistest.log|wc -l`
           if [ $errcnt2 -ne 0 ]; then
               grep -E "\[err|\[exception|49merr|49mexception" redistest.log
@@ -107,7 +109,8 @@ jobs:
       - name: GoTest
         run: |
           cd src/tendisplus/integrate_test
-          bash ./gotest.sh  | tee go-test2.log 
+          chmod +x gotest.sh
+          ./gotest.sh  | tee go-test2.log 
           cd -
           errcnt2=`grep "go passed" src/tendisplus/integrate_test/gotest.log|wc -l`
           if [ $errcnt2 -ne 6 ]; then
