@@ -83,7 +83,9 @@ jobs:
           fi
           exit 0
       - name: Check Unit Test Result
-        run: grep -E "Expected|FAILED" unittest.log
+        run: |
+          grep -E "Expected|FAILED" unittest.log
+          exit 0
       - name: Redis Test
         run: |
           chmod +x redistest.sh
@@ -95,7 +97,9 @@ jobs:
           fi
           exit 0
       - name: Check Redis Test Result
-        run: grep -E "\[err|\[exception|49merr|49mexception" redistest.log
+        run: |
+          grep -E "\[err|\[exception|49merr|49mexception" redistest.log
+          exit 0
       - name: Restore Test
         run: |
           ./$TEST_DIR/restore_test --gtest_throw_on_failure
