@@ -80,7 +80,10 @@ jobs:
           if [ $errcnt1 -ne 0 ]; then
               grep -E "Expected|FAILED" unittest.log 
           fi
-        shell: bash
+          echo `grep -E "Expected|FAILED" unittest.log`
+          ls
+          echo "Game Over"
+          exit 0
       - name: Check Unit Test Result
         run: grep -E "Expected|FAILED" unittest.log
       - name: Redis Test
@@ -91,13 +94,15 @@ jobs:
           if [ $errcnt2 -ne 0 ]; then
               grep -E "\[err|\[exception|49merr|49mexception" redistest.log
           fi
-        shell: bash
+          echo `grep -E "\[err|\[exception|49merr|49mexception" redistest.log`
+          ls
+          echo "Game Over"
+          exit 0
       - name: Check Redis Test Result
         run: grep -E "\[err|\[exception|49merr|49mexception" redistest.log
       - name: Restore Test
         run: |
           ./$TEST_DIR/restore_test --gtest_throw_on_failure
-        shell: bash
       #- name: Repl Test
       #  run: |
       #    ./$TEST_DIR/repl_test --gtest_throw_on_failure
@@ -105,7 +110,6 @@ jobs:
       - name: Cluster Test
         run: |
           ./$TEST_DIR/cluster_test --gtest_throw_on_failure
-        shell: bash
       - name: GoTest
         run: |
           cd src/tendisplus/integrate_test
@@ -118,4 +122,3 @@ jobs:
               grep "go passed" src/tendisplus/integrate_test/gotest.log
               exit $errcnt2
           fi
-        shell: bash
