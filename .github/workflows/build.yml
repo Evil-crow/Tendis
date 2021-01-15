@@ -1,4 +1,4 @@
-name: Tendis-CI
+name: Tendis-build-CI
 
 # Controls when the action will run. 
 on: 
@@ -8,8 +8,6 @@ on:
     branches: [dev-2.2, master, feat-Actions-CI]
 #  schedule:
 #    - cron: ""
-env:
-  TEST_DIR: build/bin
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:   
@@ -48,13 +46,23 @@ jobs:
               fi
             fi
           done
-
-  build:
+  build-test:
     needs: [cpplint-check]
-    name: Build
+    name: Build-Test
     runs-on: ubuntu-18.04
+    env:
+        TEST_DIR: build/bin
+
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - name: Set Up TCL
+        run: sudo apt-get install tcl8.5
       - name: Init Submodules
         run: | 
           git submodule update --init --recursive
@@ -63,29 +71,6 @@ jobs:
           mkdir build && cd build
           cmake ..
           cmake --build . -j2
-      - name: Zip Build
-        run: zip -r build.zip ./build
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: build-binary
-          path: ./build.zip     
-          retention-days: 7
-          
-  unit-test:
-    needs: [build]
-    name: Unit Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
-        with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
-      - name: Set Up TCL
-        run: sudo apt-get install tcl8.5
       - name: Unit Test
         run: |
           chmod +x unittest.sh
@@ -105,27 +90,12 @@ jobs:
           name: unit-test-log
           path: ./unittest.log
           retention-days: 7
-          
-  redis-test:
-    needs: [build]
-    name: Redis Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
-        with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
-      - name: Set Up TCL
-        run: sudo apt-get install tcl8.5
       - name: Redis Test
         run: |
           chmod +x redistest.sh
           ./redistest.sh | tee temp_redistest.log
           if [ $? -ne 0 ]; then
-            exit 10;
+            exit 10
           fi
           errcnt2=`grep -E "\[err|\[exception|49merr|49mexception" redistest.log|wc -l`
           if [ $errcnt2 -ne 0 ]; then
@@ -139,75 +109,33 @@ jobs:
           name: redis-test-log
           path: ./redistest.log
           retention-days: 7
-    
-  restore-test:
-    needs: [build]
-    name: Restore Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
-        with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
       - name: Restore Test
         run: |
-          ./$TEST_DIR/restore_test --gtest_throw_on_failure
-          
-          
-          
-  cluster-test:
-    needs: [build]
-    name: Cluster Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
+          ./$TEST_DIR/restore_test --gtest_throw_on_failure >> restore-test.log
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.2
         with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
+          name: restore-test-log
+          path: ./restore-test.log
+          retention-days: 7
       - name: Cluster Test
         run: |
-          ./$TEST_DIR/cluster_test --gtest_throw_on_failure
-  
-  repl-test:
-    needs: [build]
-    name: Repl Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
+          ./$TEST_DIR/cluster_test --gtest_throw_on_failure >> cluster-test.log
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.2
         with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
+          name: restore-test-log
+          path: ./restore-test.log
+          retention-days: 7
       - name: Repl Test
         run: |
-          ./$TEST_DIR/repl_test --gtest_throw_on_failure
-  
-  go-test:
-    needs: [build]
-    name: Go Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.0.8
+          ./$TEST_DIR/repl_test --gtest_throw_on_failure >> repl-test.log
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.2
         with:
-          name: build-binary
-      - name: Unzip Build
-        run: unzip build.zip
-      - name: Set Up TCL
-        run: sudo apt-get install tcl8.5
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15
+          name: repl-test-log
+          path: ./repl-test.log
+          retention-days: 7
       - name: GoTest
         run: |
           cd src/tendisplus/integrate_test
@@ -229,4 +157,5 @@ jobs:
         with:
           name: go-test-log
           path: src/tendisplus/integrate_test/gotest.log
-          retention-days: 7     
+          retention-days: 7
+      
