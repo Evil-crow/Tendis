@@ -124,8 +124,8 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.2
         with:
-          name: restore-test-log
-          path: ./restore-test.log
+          name: cluster-test-log
+          path: ./cluster-test.log
           retention-days: 7
       - name: Repl Test
         run: |
