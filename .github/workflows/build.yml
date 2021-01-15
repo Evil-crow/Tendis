@@ -1,5 +1,4 @@
 name: Tendis-build-CI
-
 # Controls when the action will run. 
 on: 
   pull_request:
@@ -8,8 +7,6 @@ on:
     branches: [dev-2.2, master, feat-Actions-CI]
   schedule:
    - cron: "0 */2 * * *"
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:   
   cpplint-check:
     name: Lint
@@ -52,7 +49,6 @@ jobs:
     runs-on: ubuntu-18.04
     env:
         TEST_DIR: build/bin
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -76,7 +72,7 @@ jobs:
           chmod +x unittest.sh
           ./unittest.sh
           if [ $? -ne 0 ]; then
-            exit 10;
+            exit 10
           fi
           errcnt1=`grep -E "Expected|FAILED" unittest.log |wc -l`
           if [ $errcnt1 -ne 0 ]; then
@@ -84,12 +80,6 @@ jobs:
               exit $errcnt1
           fi 
           exit 0
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: unit-test-log
-          path: ./unittest.log
-          retention-days: 7
       - name: Redis Test
         run: |
           chmod +x redistest.sh
@@ -103,46 +93,22 @@ jobs:
               exit $errcnt2
           fi
           exit 0
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: redis-test-log
-          path: ./redistest.log
-          retention-days: 7
       - name: Restore Test
         run: |
-          ./$TEST_DIR/restore_test --gtest_throw_on_failure >> restore-test.log
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: restore-test-log
-          path: ./restore-test.log
-          retention-days: 7
+          ./$TEST_DIR/restore_test --gtest_throw_on_failure
+      - name: Repl Test
+        run: |
+         ./$TEST_DIR/repl_test --gtest_throw_on_failure
       - name: Cluster Test
         run: |
-          ./$TEST_DIR/cluster_test --gtest_throw_on_failure >> cluster-test.log
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: cluster-test-log
-          path: ./cluster-test.log
-          retention-days: 7
-#       - name: Repl Test
-#         run: |
-#           ./$TEST_DIR/repl_test --gtest_throw_on_failure >> repl-test.log
-#       - name: Upload a Build Artifact
-#         uses: actions/upload-artifact@v2.2.2
-#         with:
-#           name: repl-test-log
-#           path: ./repl-test.log
-#           retention-days: 7
+          ./$TEST_DIR/cluster_test --gtest_throw_on_failure
       - name: GoTest
         run: |
           cd src/tendisplus/integrate_test
           chmod +x gotest.sh
           ./gotest.sh  | tee go-test2.log 
           if [ $? -ne 0 ]; then
-            exit 10;
+            exit 10
           fi
           cd -
           errcnt3=`grep "go passed" src/tendisplus/integrate_test/gotest.log|wc -l`
@@ -152,10 +118,3 @@ jobs:
               exit $errcnt3
           fi
           exit 0
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: go-test-log
-          path: src/tendisplus/integrate_test/gotest.log
-          retention-days: 7
-      
