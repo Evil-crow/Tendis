@@ -63,11 +63,13 @@ jobs:
           mkdir build && cd build
           cmake ..
           cmake --build . -j2
+      - name: Zip Build
+        run: zip -r build.zip ./build
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.2
         with:
           name: build-binary
-          path: ./build      
+          path: ./build.zip     
           retention-days: 7
           
   unit-test:
@@ -80,6 +82,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Set Up TCL
         run: sudo apt-get install tcl8.5
       - name: Unit Test
@@ -112,6 +116,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Set Up TCL
         run: sudo apt-get install tcl8.5
       - name: Redis Test
@@ -144,6 +150,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Restore Test
         run: |
           ./$TEST_DIR/restore_test --gtest_throw_on_failure
@@ -160,6 +168,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Cluster Test
         run: |
           ./$TEST_DIR/cluster_test --gtest_throw_on_failure
@@ -174,6 +184,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Repl Test
         run: |
           ./$TEST_DIR/repl_test --gtest_throw_on_failure
@@ -188,6 +200,8 @@ jobs:
         uses: actions/download-artifact@v2.0.8
         with:
           name: build-binary
+      - name: Unzip Build
+        run: unzip build.zip
       - name: Set Up TCL
         run: sudo apt-get install tcl8.5
       - name: Set up Go
