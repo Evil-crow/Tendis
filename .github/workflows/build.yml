@@ -6,8 +6,8 @@ on:
     branches: [dev-2.2, master]
   push:
     branches: [dev-2.2, master, feat-Actions-CI]
-#  schedule:
-#    - cron: ""
+  schedule:
+   - cron: "0 */2 * * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:   
@@ -72,7 +72,6 @@ jobs:
           cmake ..
           cmake --build . -j2
       - name: Unit Test
-        continue-on-error: true
         run: |
           chmod +x unittest.sh
           ./unittest.sh
@@ -92,7 +91,6 @@ jobs:
           path: ./unittest.log
           retention-days: 7
       - name: Redis Test
-        continue-on-error: true
         run: |
           chmod +x redistest.sh
           ./redistest.sh | tee temp_redistest.log
@@ -112,7 +110,6 @@ jobs:
           path: ./redistest.log
           retention-days: 7
       - name: Restore Test
-        continue-on-error: true
         run: |
           ./$TEST_DIR/restore_test --gtest_throw_on_failure >> restore-test.log
       - name: Upload a Build Artifact
@@ -122,7 +119,6 @@ jobs:
           path: ./restore-test.log
           retention-days: 7
       - name: Cluster Test
-        continue-on-error: true
         run: |
           ./$TEST_DIR/cluster_test --gtest_throw_on_failure >> cluster-test.log
       - name: Upload a Build Artifact
@@ -131,18 +127,16 @@ jobs:
           name: cluster-test-log
           path: ./cluster-test.log
           retention-days: 7
-      - name: Repl Test
-        continue-on-error: true
-        run: |
-          ./$TEST_DIR/repl_test --gtest_throw_on_failure >> repl-test.log
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.2
-        with:
-          name: repl-test-log
-          path: ./repl-test.log
-          retention-days: 7
+#       - name: Repl Test
+#         run: |
+#           ./$TEST_DIR/repl_test --gtest_throw_on_failure >> repl-test.log
+#       - name: Upload a Build Artifact
+#         uses: actions/upload-artifact@v2.2.2
+#         with:
+#           name: repl-test-log
+#           path: ./repl-test.log
+#           retention-days: 7
       - name: GoTest
-        continue-on-error: true
         run: |
           cd src/tendisplus/integrate_test
           chmod +x gotest.sh
