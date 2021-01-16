@@ -6,7 +6,7 @@ on:
   push:
     branches: [dev-2.2, master, feat-Actions-CI]
   schedule:
-   - cron: "0 */2 * * *"
+   - cron: "*/30 * * * *"
 jobs:   
   cpplint-check:
     name: Lint
